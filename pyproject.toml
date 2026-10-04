@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "everpod-ai"
+version = "0.1.0"
+description = "Official Python SDK for the Everpod API."
+readme = "README.md"
+authors = [
+    { name = "Everpod", email = "support@everpod.ai" },
+]
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = []
+keywords = ["everpod", "ai-agents", "agent-hosting", "openclaw", "mcp", "sdk"]
+
+[project.urls]
+Homepage = "https://everpod.ai"
+Documentation = "https://everpod.ai/docs/api"
+Repository = "https://github.com/everpod-ai/sdk-python"
+Issues = "https://github.com/everpod-ai/sdk-python/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+everpod_ai = ["py.typed"]
