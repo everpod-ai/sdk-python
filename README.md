@@ -2,7 +2,7 @@
 
 The official Python client for the [Everpod API](https://everpod.ai/docs/api).
 
-Everpod is an easy way to get your own always-on, persistent cloud computer for AI agents, working in minutes: with a managed OpenClaw agent on it, or as a developer pod with Claude Code and Codex installed. A key lets an agent or an app you trust see your pods and start a new one for you, which you then pay for on everpod.ai. It can't pay, change or cancel a plan, delete anything, or open your agent's control panel.
+Everpod is an easy way to get your own always-on, persistent cloud computer for AI agents, working in minutes: with a managed OpenClaw agent on it, or as a developer pod with Claude Code and Codex installed. A key lets an agent or an app you trust see your pods and start a new one for you, which you then pay for on everpod.ai. It can't pay, change or cancel a plan, delete anything, open your agent's control panel, or reach a developer pod's machine.
 
 If you are connecting an agent such as Claude Code or Codex, you do not need this library: point it at Everpod's MCP server, as the [API reference](https://everpod.ai/docs/api) shows.
 
