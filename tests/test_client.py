@@ -18,12 +18,13 @@ from everpod_ai import Everpod, EverpodError, __version__  # noqa: E402
 POD = {
     "id": "5f0c1a52-8f1e-4d0b-9a57-3f6f2f7c1e9a",
     "name": "Otto",
-    "harness": "openclaw",
+    "kind": "openclaw",
     "status": "awaiting_payment",
     "created_at": "2026-10-03T09:12:44.512345+00:00",
     "url": None,
     "pay_url": "https://everpod.ai/create?pod=5f0c1a52-8f1e-4d0b-9a57-3f6f2f7c1e9a",
     "plan": None,
+    "machine": None,
     "subscription": None,
 }
 
@@ -91,6 +92,14 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(request.get_method(), "POST")
         self.assertEqual(request.get_header("Content-type"), "application/json")
         self.assertEqual(json.loads(request.data.decode("utf-8")), {"name": "Otto"})
+
+    def test_start_pod_for_a_developer_pod_posts_its_kind_and_the_login(self):
+        opener = Scripted(201, {"pod": POD})
+        client(opener).start_pod("atlas", kind="developer", login="alex")
+        self.assertEqual(
+            json.loads(opener.calls[0][0].data.decode("utf-8")),
+            {"name": "atlas", "kind": "developer", "login": "alex"},
+        )
 
     def test_a_base_url_with_a_trailing_slash(self):
         opener = Scripted(200, {"pods": []})

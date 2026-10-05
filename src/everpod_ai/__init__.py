@@ -10,8 +10,8 @@ import urllib.parse
 import urllib.request
 from typing import Any, Callable, List, Optional, TypedDict
 
-__version__ = "0.1.0"
-__all__ = ["Everpod", "EverpodError", "Pod", "PodSubscription", "__version__"]
+__version__ = "0.2.0"
+__all__ = ["Everpod", "EverpodError", "Pod", "PodMachine", "PodSubscription", "__version__"]
 
 DEFAULT_BASE_URL = "https://everpod.ai"
 
@@ -22,17 +22,31 @@ class PodSubscription(TypedDict):
     cancel_at_period_end: bool  # whether the subscription is set to end then
 
 
+class PodMachine(TypedDict):
+    """A developer pod's machine."""
+
+    vcpu: int
+    ram_gb: int
+    disk_gb: int
+    login: str  # the owner's username on the machine
+    hostname: Optional[str]  # its name on its owner's Tailscale network; None until it has joined
+    key_expiry_off: bool  # whether its key expiry is switched off there
+    logged_in: bool  # whether its owner has logged in
+
+
 class Pod(TypedDict):
     """A pod. What each status means: https://everpod.ai/docs/api"""
 
     id: str
-    name: str  # the name of the pod's agent
-    harness: str  # the agent software the pod runs
-    status: str  # awaiting_payment, building, setup_delayed, ready, needs_attention, stopped
+    name: str  # the name of the pod's agent, or of a developer pod's machine
+    kind: str  # openclaw, or developer
+    # awaiting_payment, building, setup_delayed, awaiting_connection, ready, needs_attention, stopped
+    status: str
     created_at: str
     url: Optional[str]  # the pod's page on everpod.ai; None until the pod is paid for
     pay_url: Optional[str]  # where the pod's owner pays, while the status is awaiting_payment
     plan: Optional[str]  # None until the pod is paid for
+    machine: Optional[PodMachine]  # None for an OpenClaw pod
     subscription: Optional[PodSubscription]  # None until the pod is paid for
 
 
@@ -79,13 +93,20 @@ class Everpod:
         """One pod by its id."""
         return self._request("GET", "/pods/" + urllib.parse.quote(str(pod_id), safe=""))["pod"]
 
-    def start_pod(self, name: str) -> Pod:
-        """Start a pod under the name its owner wants for their agent.
+    def start_pod(self, name: str, *, kind: Optional[str] = None, login: Optional[str] = None) -> Pod:
+        """Start a pod.
 
-        Nothing is charged: the pod stays unpaid until its owner pays at
-        ``pay_url``.
+        ``name`` is the name its owner wants for their agent; for a developer
+        pod (``kind="developer"``) it is the machine's name, and ``login`` is
+        the owner's username on the machine. Nothing is charged: the pod
+        stays unpaid until its owner pays at ``pay_url``.
         """
-        return self._request("POST", "/pods", {"name": name})["pod"]
+        body = {"name": name}
+        if kind is not None:
+            body["kind"] = kind
+        if login is not None:
+            body["login"] = login
+        return self._request("POST", "/pods", body)["pod"]
 
     def _request(self, method: str, path: str, body: Optional[dict] = None) -> Any:
         headers = {

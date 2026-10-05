@@ -2,7 +2,7 @@
 
 The official Python client for the [Everpod API](https://everpod.ai/docs/api).
 
-Everpod runs an AI agent on a pod: a private, always-on cloud computer of its own. A key lets an agent or an app you trust see your pods and start a new one for you, which you then pay for on everpod.ai. It can't pay, change or cancel a plan, delete anything, or open your agent's control panel.
+Everpod is an easy way to get your own always-on, persistent cloud computer for AI agents, working in minutes: with a managed OpenClaw agent on it, or as a developer pod with Claude Code and Codex installed. A key lets an agent or an app you trust see your pods and start a new one for you, which you then pay for on everpod.ai. It can't pay, change or cancel a plan, delete anything, or open your agent's control panel.
 
 If you are connecting an agent such as Claude Code or Codex, you do not need this library: point it at Everpod's MCP server, as the [API reference](https://everpod.ai/docs/api) shows.
 
@@ -25,10 +25,13 @@ from everpod_ai import Everpod
 
 everpod = Everpod(os.environ["EVERPOD_API_KEY"])
 
-# Start a pod under the name you want for its agent. Nothing is charged:
-# the pod stays unpaid until you open pay_url in a browser and pay there.
+# Start an OpenClaw pod under the name you want for its agent. Nothing is
+# charged: the pod stays unpaid until you open pay_url in a browser and pay there.
 pod = everpod.start_pod("Otto")
 print(pod["status"], pod["pay_url"])
+
+# Or a developer pod: the machine's name, and your username on it.
+machine = everpod.start_pod("atlas", kind="developer", login="alex")
 
 # The pods on your account, oldest first.
 pods = everpod.list_pods()
@@ -37,7 +40,7 @@ pods = everpod.list_pods()
 same = everpod.get_pod(pod["id"])
 ```
 
-While your account has an unpaid pod, starting another returns that same pod, renamed if the name differs.
+While your account has an unpaid pod, starting another returns that same pod, changed to the name and kind now asked for.
 
 A pod's fields and what each status means are in the [API reference](https://everpod.ai/docs/api).
 
