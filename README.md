@@ -2,7 +2,7 @@
 
 The official Python client for the [Everpod API](https://everpod.ai/docs/api).
 
-Everpod is an easy way to get your own always-on, persistent cloud computer for AI agents, working in minutes: with a managed OpenClaw agent on it, or as a developer pod with Claude Code and Codex installed. A key lets an agent or an app you trust see your pods and start a new one for you, which you then pay for on everpod.ai. It can't pay, change or cancel a plan, delete anything, open your agent's control panel, or reach a developer pod's machine.
+Everpod is an easy way to get your own always-on, persistent cloud computer for AI agents, working in minutes: as a developer pod with your pick of Claude Code, Codex, OpenCode, Pi, Hermes and OpenClaw installed, or with OpenClaw set up and run for you. A key lets an agent or an app you trust see your pods and start a new one for you, which you then pay for on everpod.ai. It can't pay, change or cancel a plan, delete anything, open your agent's control panel, or reach a developer pod's machine.
 
 If you are connecting an agent such as Claude Code or Codex, you do not need this library: point it at Everpod's MCP server, as the [API reference](https://everpod.ai/docs/api) shows.
 
@@ -30,8 +30,10 @@ everpod = Everpod(os.environ["EVERPOD_API_KEY"])
 pod = everpod.start_pod("Otto")
 print(pod["status"], pod["pay_url"])
 
-# Or a developer pod: the machine's name, and your username on it.
-machine = everpod.start_pod("atlas", kind="developer", login="alex")
+# Or a developer pod: the machine's name, your username on it, which
+# coding agents come installed (any of claude, codex, opencode, pi, hermes and openclaw; Claude Code and Codex when left out) and its size (s, m or
+# l; the S when left out).
+machine = everpod.start_pod("atlas", kind="developer", login="alex", agents=["claude", "codex"], size="m")
 
 # The pods on your account, oldest first.
 pods = everpod.list_pods()

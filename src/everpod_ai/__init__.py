@@ -10,7 +10,7 @@ import urllib.parse
 import urllib.request
 from typing import Any, Callable, List, Optional, TypedDict
 
-__version__ = "0.2.0"
+__version__ = "0.3.1"
 __all__ = ["Everpod", "EverpodError", "Pod", "PodMachine", "PodSubscription", "__version__"]
 
 DEFAULT_BASE_URL = "https://everpod.ai"
@@ -29,6 +29,8 @@ class PodMachine(TypedDict):
     ram_gb: int
     disk_gb: int
     login: str  # the owner's username on the machine
+    agents: List[str]  # the coding agents that come installed (claude, codex, opencode, pi, hermes, openclaw), as the owner chose; claude and codex when nobody chose
+    size: str  # the size bought: "s", "m" or "l" (vcpu, ram_gb and disk_gb are that size's)
     hostname: Optional[str]  # its name on its owner's Tailscale network; None until it has joined
     key_expiry_off: bool  # whether its key expiry is switched off there
     logged_in: bool  # whether its owner has logged in
@@ -93,19 +95,35 @@ class Everpod:
         """One pod by its id."""
         return self._request("GET", "/pods/" + urllib.parse.quote(str(pod_id), safe=""))["pod"]
 
-    def start_pod(self, name: str, *, kind: Optional[str] = None, login: Optional[str] = None) -> Pod:
+    def start_pod(
+        self,
+        name: str,
+        *,
+        kind: Optional[str] = None,
+        login: Optional[str] = None,
+        agents: Optional[List[str]] = None,
+        size: Optional[str] = None,
+    ) -> Pod:
         """Start a pod.
 
         ``name`` is the name its owner wants for their agent; for a developer
-        pod (``kind="developer"``) it is the machine's name, and ``login`` is
-        the owner's username on the machine. Nothing is charged: the pod
+        pod (``kind="developer"``) it is the machine's name, ``login`` is
+        the owner's username on the machine, ``agents`` which coding
+        agents come installed (one or more of ``"claude"``, Claude Code,
+        ``"codex"``, ``"opencode"``, ``"pi"``, ``"hermes"`` and ``"openclaw"``; Claude Code and Codex when
+        left out) and ``size`` which size (``"s"``,
+        ``"m"`` or ``"l"``; the S when left out). Nothing is charged: the pod
         stays unpaid until its owner pays at ``pay_url``.
         """
-        body = {"name": name}
+        body: dict = {"name": name}
         if kind is not None:
             body["kind"] = kind
         if login is not None:
             body["login"] = login
+        if agents is not None:
+            body["agents"] = list(agents)
+        if size is not None:
+            body["size"] = size
         return self._request("POST", "/pods", body)["pod"]
 
     def _request(self, method: str, path: str, body: Optional[dict] = None) -> Any:
